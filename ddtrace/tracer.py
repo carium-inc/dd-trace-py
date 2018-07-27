@@ -1,6 +1,6 @@
 import functools
 import logging
-from os import getpid
+import os
 
 from .ext import system
 from .provider import DefaultContextProvider
@@ -27,7 +27,7 @@ class Tracer(object):
         from ddtrace import tracer
         trace = tracer.trace("app.request", "web-server").finish()
     """
-    DEFAULT_HOSTNAME = 'localhost'
+    DEFAULT_HOSTNAME = os.environ.get('DATADOG_TRACE_AGENT_HOSTNAME', 'localhost')
     DEFAULT_PORT = 8126
 
     def __init__(self):
@@ -232,7 +232,7 @@ class Tracer(object):
         if self.tags:
             span.set_tags(self.tags)
         if not span._parent:
-            span.set_tag(system.PID, getpid())
+            span.set_tag(system.PID, os.getpid())
 
         # add it to the current context
         context.add_span(span)
